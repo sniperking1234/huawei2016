@@ -1,11 +1,14 @@
 #include "route.h"
 #include "lib_record.h"
 #include <stdio.h>
+#include <stdlib.h>
 #include <queue>
 #include <memory.h>
 
 //const int EDGENUMBERS = 150;
 const int EDGENUMBERS = 1;
+
+SetNode *setNode[MAX_INCLUDING_SET];
 
 //你要完成的功能总入口
 void search_route(char *topo[5000], int edge_num, char *demand)
@@ -603,7 +606,7 @@ void mainGreedyAlgorithm(EdgeNode *node[MAX_VERTEX_NUM], int nodeDemand[MAX_INCL
  */
 void getDFS1(EdgeNode *node[MAX_VERTEX_NUM], int includingSet[MAX_INCLUDING_SET], int cntPass, int sourceID, int destinationID)
 {
-    const int MAX_SEARCH_DEPTH = 5;     // 基本功能实现后可添加迭代加深.
+    //const int MAX_SEARCH_DEPTH = 5;     // 基本功能实现后可添加迭代加深.
     bool hasVisited[MAX_VERTEX_NUM][MAX_VERTEX_NUM];
     memset(hasVisited, 0, sizeof(hasVisited));
     bool inStack[MAX_VERTEX_NUM];
@@ -621,11 +624,20 @@ void getDFS1(EdgeNode *node[MAX_VERTEX_NUM], int includingSet[MAX_INCLUDING_SET]
     memset(recordRoute, 0, sizeof(recordRoute));
     int tempRoute[MAX_VERTEX_NUM];
     memset(tempRoute, 0, sizeof(tempRoute));
+
     int length = 0;
     int tempCost = 0;
     int index = 0;
+    int tempDepth = 0;
+    SetNode * curSNode;
     while (index < cntPass)
     {
+        //设置头结点
+        setNode[index] = (SetNode *) malloc(sizeof(SetNode));
+        setNode[index] -> weight = 0;
+        setNode[index] -> endNode = 0;
+        setNode[index] -> next = NULL;
+        curSNode = setNode[index];
         while (stackDepth > 0)
         {
             while (pNode != NULL)
@@ -657,10 +669,10 @@ void getDFS1(EdgeNode *node[MAX_VERTEX_NUM], int includingSet[MAX_INCLUDING_SET]
                 hasVisited[tempID][pNode->nodeID] = true;
                 inStack[pNode->nodeID] = true;
                 stackDepth++;
-                if (checkInDemand(includingSet, pNode->nodeID) || ) // 遍历到另一个必过点,存储路径,回退寻找下一个必过点.
+                //如果经过了必过点，或者终点，且深度小于MAX_SEARCH_DEPTH
+                if ((checkInDemand(includingSet, pNode->nodeID) || pNode->nodeID == destinationID ) && stackDepth <= MAX_SEARCH_DEPTH ) // 遍历到另一个必过点,存储路径,回退寻找下一个必过点.
                 {
                     //#!!!! 记录路径写到这里！！
-
                     memset(tempRoute, 0, sizeof(tempRoute));
                     tempCost = getCost(node, nodeStack, tempRoute, stackDepth);
                     memcpy(recordRoute, tempRoute, sizeof(tempRoute));
@@ -668,6 +680,19 @@ void getDFS1(EdgeNode *node[MAX_VERTEX_NUM], int includingSet[MAX_INCLUDING_SET]
                     stackDepth--;
                     memset(hasVisited[nodeStack[stackDepth]], 0, sizeof(hasVisited[nodeStack[stackDepth]]));
                     inStack[nodeStack[stackDepth]] = false;
+                    //记录结点
+                    SetNode *tempSNode = (SetNode *)malloc(sizeof(SetNode));
+                    tempDepth = stackDepth;
+                    tempSNode ->nodeList[tempDepth + 1] = nodeStack[stackDepth];
+                    while(tempDepth > 0)
+                    {
+                        tempSNode ->nodeList[tempDepth] = nodeStack[tempDepth];
+                        tempDepth --;
+                    }
+                    tempSNode ->endNode = pNode ->nodeID;
+                    tempSNode ->weight = tempCost;
+                    curSNode ->next = tempSNode;
+                    curSNode = curSNode ->next;
                 }
                 pNode = node[nodeStack[stackDepth - 1]];
                 tempID = nodeStack[stackDepth - 1];

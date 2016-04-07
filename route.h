@@ -26,6 +26,15 @@ typedef struct EdgeNode
 	EdgeNode *next;
 } EdgeNode;
 
+#define MAX_SEARCH_DEPTH 5
+typedef struct SetNode
+{
+    int weight;
+    int endNode;
+    int nodeList[MAX_SEARCH_DEPTH] = {0};
+    SetNode *next;
+}SetNode;
+
 //未注释的为通用公共函数
 void getTopoArray(int edge_num, char *topo[5000], int topoArray[][4]);
 
