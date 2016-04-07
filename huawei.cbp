@@ -32,7 +32,14 @@
 			<Add option="-Wall" />
 			<Add option="-fexceptions" />
 		</Compiler>
+		<Unit filename="future_net.cpp" />
+		<Unit filename="io.cpp" />
+		<Unit filename="lib_io.h" />
+		<Unit filename="lib_record.h" />
+		<Unit filename="lib_time.h" />
 		<Unit filename="main.cpp" />
+		<Unit filename="route.cpp" />
+		<Unit filename="route.h" />
 		<Extensions>
 			<code_completion />
 			<envvars />
