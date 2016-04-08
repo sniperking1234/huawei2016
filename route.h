@@ -71,6 +71,7 @@ void testChange2List(EdgeNode *node[MAX_VERTEX_NUM]);
 
 #ifdef DFSDEBUG
 void getDFS(EdgeNode *node[MAX_VERTEX_NUM],int nodeDemand[MAX_INCLUDING_SET],int cntPass,int sourceID,int destinationID);
+void getDFS1(EdgeNode *node[MAX_VERTEX_NUM],int nodeDemand[MAX_INCLUDING_SET],int cntPass,int sourceID,int destinationID);
 int getDFS2(EdgeNode *node[MAX_VERTEX_NUM], int includingSet[MAX_INCLUDING_SET], int cntPass, int destinationID, int *path);
 
 bool CheckConf(SetNode *path, bool hasVisited[MAX_VERTEX_NUM]);

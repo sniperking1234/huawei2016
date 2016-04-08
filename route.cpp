@@ -51,10 +51,9 @@ void search_route(char *topo[5000], int edge_num, char *demand)
     }*/
 
     int path[MAX_VERTEX_NUM];
-    int length ;
     memset(path, 0, sizeof(sizeof(int) * MAX_VERTEX_NUM));
     getDFS1(nodeArray, includingSet, cntPass, sourceID, destinationID);
-    length = getDFS2(nodeArray, includingSet, int cntPass, destinationID, path);
+    int length  = getDFS2(nodeArray, includingSet,cntPass, destinationID, path);
     for(int i = 0; i < length; i++)
     {
         record_result(path[i]);
