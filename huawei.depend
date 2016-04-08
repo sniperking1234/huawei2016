@@ -1,0 +1,37 @@
+# depslib dependency file v1.0
+1460119060 source:c:\users\chen\documents\github\huawei2016\future_net.cpp
+	"route.h"
+	"lib_io.h"
+	"lib_time.h"
+	"stdio.h"
+
+1460119064 c:\users\chen\documents\github\huawei2016\route.h
+
+1457322533 c:\users\chen\documents\github\huawei2016\lib_io.h
+
+1457273188 c:\users\chen\documents\github\huawei2016\lib_time.h
+
+1460119052 source:c:\users\chen\documents\github\huawei2016\io.cpp
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	<assert.h>
+	<time.h>
+	<sys/timeb.h>
+	<errno.h>
+	<unistd.h>
+	<signal.h>
+
+1383686515 source:c:\users\chen\documents\github\huawei2016\main.cpp
+	<iostream>
+
+1460119816 source:c:\users\chen\documents\github\huawei2016\route.cpp
+	"route.h"
+	"lib_record.h"
+	<stdio.h>
+	<stdlib.h>
+	<queue>
+	<memory.h>
+
+1457273231 c:\users\chen\documents\github\huawei2016\lib_record.h
+

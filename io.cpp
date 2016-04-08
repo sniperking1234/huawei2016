@@ -20,7 +20,7 @@ typedef struct
     int head;
     int tail;
     int cnt;
-}RECORD_QUEUE_S;
+} RECORD_QUEUE_S;
 
 static char g_result[MAX_LINE_LEN] = "NA";
 
@@ -30,17 +30,21 @@ void record_result(unsigned short edge)
 {
     static int len = 0;
     if (len > (MAX_LINE_LEN - 10))
+    {
         return;
+    }
     if (len > 0)
+    {
         len += sprintf(g_result + len, "|");
+    }
     len += sprintf(g_result + len, "%d", edge);
 }
 
 void print_time(const char *head)
-{ 
-    struct timeb rawtime; 
-    struct tm * timeinfo; 
-    ftime(&rawtime); 
+{
+    struct timeb rawtime;
+    struct tm * timeinfo;
+    ftime(&rawtime);
     timeinfo = localtime(&rawtime.time);
 
     static int ms = rawtime.millitm;
@@ -55,7 +59,7 @@ void print_time(const char *head)
         out_ms += 1000;
         out_s -= 1;
     }
-    printf("%s date/time is: %s \tused time is %lu s %d ms.\n", head, asctime(timeinfo), out_s, out_ms); 
+    printf("%s date/time is: %s \tused time is %lu s %d ms.\n", head, asctime(timeinfo), out_s, out_ms);
 }
 
 int read_file(char ** const buff, const unsigned int spec, const char * const filename)
@@ -74,7 +78,10 @@ int read_file(char ** const buff, const unsigned int spec, const char * const fi
     {
         line[0] = 0;
         fgets(line, MAX_LINE_LEN + 2, fp);
-        if (line[0] == 0)   continue;
+        if (line[0] == 0)
+        {
+            continue;
+        }
         buff[cnt] = (char *)malloc(MAX_LINE_LEN + 2);
         strncpy(buff[cnt], line, MAX_LINE_LEN + 2 - 1);
         buff[cnt][4001] = 0;
@@ -89,7 +96,9 @@ int read_file(char ** const buff, const unsigned int spec, const char * const fi
 void write_result(const char * const filename)
 {
     if (g_result[0] == '\0')
+    {
         return;
+    }
 
     write_file(1, g_result, filename);
 }
@@ -97,13 +106,17 @@ void write_result(const char * const filename)
 void release_buff(char ** const buff, const int valid_item_num)
 {
     for (int i = 0; i < valid_item_num; i++)
+    {
         free(buff[i]);
+    }
 }
 
 INLINE void write_file(const bool cover, const char * const buff, const char * const filename)
 {
     if (buff == NULL)
+    {
         return;
+    }
 
     const char *write_type = cover ? "w" : "a";//1:覆盖写文件，0:追加写文件
     FILE *fp = fopen(filename, write_type);
