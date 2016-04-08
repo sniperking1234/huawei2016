@@ -76,7 +76,7 @@ int getDFS2(EdgeNode *node[MAX_VERTEX_NUM], int includingSet[MAX_INCLUDING_SET],
 bool CheckConf(SetNode *path, bool hasVisited[MAX_VERTEX_NUM]);
 void CopyToHead(SetNode *head, SetNode *path);
 void CleanState(SetNode *node);
-void GetPath(EdgeNode *node[MAX_VERTEX_NUM], int nodeStack[MAX_INCLUDING_SET], int stackDepth, int *path);
+int GetPath(EdgeNode *node[MAX_VERTEX_NUM], int nodeStack[MAX_INCLUDING_SET], int stackDepth, int *path);
 int ConToPath(EdgeNode *node[MAX_VERTEX_NUM],int startId, int nodeId);
 #endif // DFSDEBUG
 

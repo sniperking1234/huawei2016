@@ -37,7 +37,7 @@ void search_route(char *topo[5000], int edge_num, char *demand)
     testChange2List(nodeArray);
 #endif
 
-    if (edge_num < EDGENUMBERS)
+/*    if (edge_num < EDGENUMBERS)
     {
 #ifdef DFSDEBUG
         getDFS(nodeArray, includingSet, cntPass, sourceID, destinationID);
@@ -48,7 +48,18 @@ void search_route(char *topo[5000], int edge_num, char *demand)
 #ifdef GREEDYALGORITHM
         mainGreedyAlgorithm(nodeArray, includingSet, cntPass, sourceID, destinationID);
 #endif // GREEDYALGORITHM
+    }*/
+
+    int path[MAX_VERTEX_NUM];
+    int length ;
+    memset(path, 0, sizeof(sizeof(int) * MAX_VERTEX_NUM));
+    getDFS1(nodeArray, includingSet, cntPass, sourceID, destinationID);
+    length = getDFS2(nodeArray, includingSet, int cntPass, destinationID, path);
+    for(int i = 0; i < length; i++)
+    {
+        record_result(path[i]);
     }
+
 
     return;
 }
@@ -766,14 +777,14 @@ int getDFS2(EdgeNode *node[MAX_VERTEX_NUM], int includingSet[MAX_INCLUDING_SET],
             //如果把第一个结点也出栈，说明没有结果
             if(stackDepth < 0)
             {
-                return 1;
+                return 0;
             }
         }
     }
 
-    GetPath(node, nodeStack, stackDepth, path);
+    int pathlenth = GetPath(node, nodeStack, stackDepth, path);
 
-    return 0;
+    return pathlenth;
 }
 
 //检查冲突，有冲突返回true，无返回false
@@ -814,7 +825,7 @@ void CleanState(SetNode *node)
     }
 }
 //获得路径
-void GetPath(EdgeNode *node[MAX_VERTEX_NUM], int nodeStack[MAX_INCLUDING_SET], int stackDepth, int *path)
+int GetPath(EdgeNode *node[MAX_VERTEX_NUM], int nodeStack[MAX_INCLUDING_SET], int stackDepth, int *path)
 {
     int i,j;
     int setId = 0;
@@ -824,7 +835,7 @@ void GetPath(EdgeNode *node[MAX_VERTEX_NUM], int nodeStack[MAX_INCLUDING_SET], i
     int startId;
     int nodeId;
     int pathId;
-    memset(path, 0, sizeof(sizeof(int) * MAX_VERTEX_NUM));
+
 
     //依次读取栈中的关键结点
     for(i = 0; i < stackDepth; i++)
@@ -840,6 +851,8 @@ void GetPath(EdgeNode *node[MAX_VERTEX_NUM], int nodeStack[MAX_INCLUDING_SET], i
             startId = nodeId;
         }
     }
+
+    return count;
 }
 
 int ConToPath(EdgeNode *node[MAX_VERTEX_NUM],int startId, int nodeId)
