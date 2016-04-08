@@ -29,8 +29,11 @@ typedef struct EdgeNode
 #define MAX_SEARCH_DEPTH 5
 typedef struct SetNode
 {
+    int startNode;
     int weight;
     int endNode;
+    int length;
+    bool mark;
     int nodeList[MAX_SEARCH_DEPTH] = {0};
     SetNode *next;
 }SetNode;
@@ -68,6 +71,13 @@ void testChange2List(EdgeNode *node[MAX_VERTEX_NUM]);
 
 #ifdef DFSDEBUG
 void getDFS(EdgeNode *node[MAX_VERTEX_NUM],int nodeDemand[MAX_INCLUDING_SET],int cntPass,int sourceID,int destinationID);
+int getDFS2(EdgeNode *node[MAX_VERTEX_NUM], int includingSet[MAX_INCLUDING_SET], int cntPass, int destinationID, int *path);
+
+bool CheckConf(SetNode *path, bool hasVisited[MAX_VERTEX_NUM]);
+void CopyToHead(SetNode *head, SetNode *path);
+void CleanState(SetNode *node);
+void GetPath(EdgeNode *node[MAX_VERTEX_NUM], int nodeStack[MAX_INCLUDING_SET], int stackDepth, int *path);
+int ConToPath(EdgeNode *node[MAX_VERTEX_NUM],int startId, int nodeId);
 #endif // DFSDEBUG
 
 #ifdef PRINTDEBUG
