@@ -639,7 +639,6 @@ void getDFS1(EdgeNode *node[MAX_VERTEX_NUM], int includingSet[MAX_INCLUDING_SET]
     int length = 0;
     int tempCost = 0;
     int index = 0;
-    int tempDepth = 0;
     SetNode * curSNode;
 
     //设置起点的头结点
@@ -700,14 +699,11 @@ void getDFS1(EdgeNode *node[MAX_VERTEX_NUM], int includingSet[MAX_INCLUDING_SET]
                     SetNode *tempSNode = (SetNode *)malloc(sizeof(SetNode));
                     tempSNode ->next = NULL;
                     tempSNode ->mark = false;
-                    tempDepth = stackDepth;
-                    tempSNode ->nodeList[tempDepth] = nodeStack[stackDepth];
-                    tempSNode ->length = 1;
-                    while (tempDepth >= 0)
+                    tempSNode ->length = length;
+                    while (length >= 0)
                     {
-                        tempSNode ->nodeList[tempDepth] = nodeStack[tempDepth];
-                        tempSNode ->length++;
-                        tempDepth --;
+                        tempSNode ->nodeList[length] = nodeStack[length];
+                        length --;
                     }
                     tempSNode ->endNode = pNode ->nodeID;
                     tempSNode ->weight = tempCost;
@@ -722,14 +718,14 @@ void getDFS1(EdgeNode *node[MAX_VERTEX_NUM], int includingSet[MAX_INCLUDING_SET]
         index++;
 
         //设置头结点
-        setNode[index] = (SetNode *) malloc(sizeof(SetNode));
-        setNode[index] ->startNode = includingSet[index - 1];
-        setNode[index] -> weight = 0;
-        setNode[index] -> endNode = 0;
-        setNode[index] ->length = 0;
-        setNode[index] ->mark = false;
-        setNode[index] -> next = NULL;
-        curSNode = setNode[index];
+        setNode[includingSet[index]] = (SetNode *) malloc(sizeof(SetNode));
+        setNode[includingSet[index]] ->startNode = includingSet[index - 1];
+        setNode[includingSet[index]] -> weight = 0;
+        setNode[includingSet[index]] -> endNode = 0;
+        setNode[includingSet[index]] ->length = 0;
+        setNode[includingSet[index]] ->mark = false;
+        setNode[includingSet[index]] -> next = NULL;
+        curSNode = setNode[includingSet[index]];
     }
     return;
 }
@@ -812,8 +808,10 @@ int getDFS2(EdgeNode *node[MAX_VERTEX_NUM], int includingSet[MAX_INCLUDING_SET],
 bool CheckConf(SetNode *path, bool hasVisited[MAX_VERTEX_NUM])
 {
     int i ;
+    printf("length is %d\n",path->length);
     for (i = 0; i < path ->length; i++)
     {
+        printf("nodeid is %d\n",path ->nodeList[i]);
         if (true == hasVisited[path ->nodeList[i]] )
         {
             return true;
