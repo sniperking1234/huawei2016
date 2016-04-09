@@ -738,7 +738,7 @@ void getDFS1(EdgeNode *node[MAX_VERTEX_NUM], int includingSet[MAX_INCLUDING_SET]
 int getDFS2(EdgeNode *node[MAX_VERTEX_NUM], int includingSet[MAX_INCLUDING_SET], int cntPass, int destinationID, int *path)
 {
     bool hasVisited[MAX_VERTEX_NUM];
-    memset(hasVisited, 0, sizeof(hasVisited));
+    memset(hasVisited, false, sizeof(hasVisited));
 
     int setId = 0;//从起点开始
 
@@ -770,7 +770,7 @@ int getDFS2(EdgeNode *node[MAX_VERTEX_NUM], int includingSet[MAX_INCLUDING_SET],
             if (!CheckConf(shortPath, hasVisited))
             {
                 //把最短路径的信息复制到第一个结点中
-                CopyToHead(setNode[setId], shortPath);
+                CopyToHead(setNode[setId], shortPath, hasVisited);
                 //保存
                 nodeStack[stackDepth++] = setId;
                 //设置新的遍历起点
@@ -790,7 +790,7 @@ int getDFS2(EdgeNode *node[MAX_VERTEX_NUM], int includingSet[MAX_INCLUDING_SET],
         else
         {
             //清除mark状态
-            CleanState(setNode[setId]);
+            CleanState(setNode[setId], hasVisited);
             setId = nodeStack[stackDepth--];
             shortPath = NULL;
             //如果把第一个结点也出栈，说明没有结果
@@ -818,12 +818,11 @@ bool CheckConf(SetNode *path, bool hasVisited[MAX_VERTEX_NUM])
         {
             return true;
         }
-        hasVisited[path ->nodeList[i]] = true;
     }
     return false;
 }
 
-void CopyToHead(SetNode *head, SetNode *path)
+void CopyToHead(SetNode *head, SetNode *path, bool hasVisited[MAX_VERTEX_NUM])
 {
     int i;
     head ->mark = path ->mark;
@@ -831,16 +830,23 @@ void CopyToHead(SetNode *head, SetNode *path)
     for (i = 0; i < path->length; i++)
     {
         head ->nodeList[i] = path ->nodeList[i];
+        hasVisited[path ->nodeList[i]] = true;
     }
     head ->weight = path ->weight;
 }
 
-void CleanState(SetNode *node)
+void CleanState(SetNode *node, bool hasVisited[MAX_VERTEX_NUM])
 {
     node -> weight = 0;
     node -> endNode = 0;
     node ->length = 0;
     node ->mark = false;
+
+    for(int i = 0; i < node ->length; i++)
+    {
+        hasVisited[node ->nodeList[i]] = false;
+    }
+
     while (node ->next != NULL)
     {
         node = node ->next;
