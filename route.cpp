@@ -641,17 +641,19 @@ void getDFS1(EdgeNode *node[MAX_VERTEX_NUM], int includingSet[MAX_INCLUDING_SET]
     int index = 0;
     int tempDepth = 0;
     SetNode * curSNode;
+
+    //设置起点的头结点
+    setNode[index] = (SetNode *) malloc(sizeof(SetNode));
+    setNode[index] ->startNode = includingSet[index];
+    setNode[index] -> weight = 0;
+    setNode[index] -> endNode = 0;
+    setNode[index] ->length = 0;
+    setNode[index] ->mark = false;
+    setNode[index] -> next = NULL;
+    curSNode = setNode[index];
+
     while (index < cntPass)
     {
-        //设置头结点
-        setNode[index] = (SetNode *) malloc(sizeof(SetNode));
-        setNode[index] ->startNode = includingSet[index];
-        setNode[index] -> weight = 0;
-        setNode[index] -> endNode = 0;
-        setNode[index] ->length = 0;
-        setNode[index] ->mark = false;
-        setNode[index] -> next = NULL;
-        curSNode = setNode[index];
         while (stackDepth > 0)
         {
             while (pNode != NULL)
@@ -699,9 +701,9 @@ void getDFS1(EdgeNode *node[MAX_VERTEX_NUM], int includingSet[MAX_INCLUDING_SET]
                     tempSNode ->next = NULL;
                     tempSNode ->mark = false;
                     tempDepth = stackDepth;
-                    tempSNode ->nodeList[tempDepth + 1] = nodeStack[stackDepth];
+                    tempSNode ->nodeList[tempDepth] = nodeStack[stackDepth];
                     tempSNode ->length = 1;
-                    while (tempDepth > 0)
+                    while (tempDepth >= 0)
                     {
                         tempSNode ->nodeList[tempDepth] = nodeStack[tempDepth];
                         tempSNode ->length++;
@@ -718,6 +720,16 @@ void getDFS1(EdgeNode *node[MAX_VERTEX_NUM], int includingSet[MAX_INCLUDING_SET]
         }
         nodeStack[stackDepth] = includingSet[index];    // 更新下次进行遍历时的起点.
         index++;
+
+        //设置头结点
+        setNode[index] = (SetNode *) malloc(sizeof(SetNode));
+        setNode[index] ->startNode = includingSet[index - 1];
+        setNode[index] -> weight = 0;
+        setNode[index] -> endNode = 0;
+        setNode[index] ->length = 0;
+        setNode[index] ->mark = false;
+        setNode[index] -> next = NULL;
+        curSNode = setNode[index];
     }
     return;
 }
@@ -735,37 +747,43 @@ int getDFS2(EdgeNode *node[MAX_VERTEX_NUM], int includingSet[MAX_INCLUDING_SET],
     memset(nodeStack, 0, sizeof(nodeStack));
 
     SetNode *shortPath = NULL;
-    SetNode *curPath = NULL;
+    SetNode *curPath = setNode[setId];
+    printf("before while\n");
     while (1)
     {
         shortPath = setNode[setId] ->next;
         //找到通往下一个必过结点中权值最小的路径
-        while (setNode[setId] ->next != NULL)
+        while (curPath ->next != NULL)
         {
-            curPath = setNode[setId] ->next;
+            curPath = curPath ->next;
             //如果没有被访问过且权重较小
-            if (!curPath ->mark && curPath->weight < shortPath ->weight)
+            if (!curPath ->mark && curPath->weight <= shortPath ->weight)
             {
                 shortPath = curPath;
             }
         }
-        if (shortPath != NULL)
+        //如果有道路
+        if (shortPath != NULL && !shortPath -> mark)
         {
+            shortPath ->mark = true;
             //判断冲突，不冲突的话表示找到了一条路径
             if (!CheckConf(shortPath, hasVisited))
             {
-                shortPath ->mark = true;
                 //把最短路径的信息复制到第一个结点中
                 CopyToHead(setNode[setId], shortPath);
                 //保存
                 nodeStack[stackDepth++] = setId;
                 //设置新的遍历起点
                 setId = shortPath ->endNode;
-                //找到
-                if (setId == destinationID)
+                //找到且经过了所有必过点
+                if (setId == destinationID && cntPass + 1 == stackDepth)
                 {
                     break;
                 }
+            }
+            else
+            {
+                shortPath = NULL;
             }
         }
         //如果没有适合的路径，则退栈
@@ -774,13 +792,16 @@ int getDFS2(EdgeNode *node[MAX_VERTEX_NUM], int includingSet[MAX_INCLUDING_SET],
             //清除mark状态
             CleanState(setNode[setId]);
             setId = nodeStack[stackDepth--];
+            shortPath = NULL;
             //如果把第一个结点也出栈，说明没有结果
             if (stackDepth < 0)
             {
+                printf("no result\n");
                 return 0;
             }
         }
     }
+    printf("after while\n");
 
     int pathlenth = GetPath(node, nodeStack, stackDepth, path);
 
