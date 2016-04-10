@@ -764,12 +764,12 @@ int getDFS2(EdgeNode *node[MAX_VERTEX_NUM], int includingSet[MAX_INCLUDING_SET],
         curPath = setNode[setId];
 
         //找到下一个未标记的路径
-        while (curPath ->next != NULL && curPath ->next ->mark)
+        while ((curPath = curPath ->next) != NULL && !curPath ->mark)
         {
-            curPath = curPath ->next;
+            break;
         }
         //如果有道路
-        if (curPath != setNode[setId] && !curPath -> mark)
+        if (curPath != NULL && !curPath -> mark)
         {
             curPath ->mark = true;
             //判断冲突，不冲突的话表示找到了一条路径
