@@ -749,73 +749,75 @@ int getDFS2(EdgeNode *node[MAX_VERTEX_NUM], int includingSet[MAX_INCLUDING_SET],
     memset(inStack, false, sizeof(inStack));
 
     int setId = 0;//从起点开始
-    int endId = 0;
-
+    int startId = 0;
     int stackDepth = 0;
     int nodeStack[MAX_INCLUDING_SET];
     memset(nodeStack, 0, sizeof(nodeStack));
 
-    SetNode *shortPath = NULL;
     SetNode *curPath = setNode[setId];
     inStack[setId] = true;
+    hasVisited[setId] = true;
     printf("before while\n");
+
+    int pathlenth;
     while (1)
     {
-        curPath = setNode[setId];
+        curPath = setNode[setId] ->next;
 
         //找到下一个未标记的路径
-        while ((curPath = curPath ->next) != NULL && !curPath ->mark)
+        while (curPath != NULL)
         {
-            break;
+           if(curPath ->mark == false)
+                break;
+            curPath = curPath ->next;
         }
         //如果有道路
-        if (curPath != NULL && !curPath -> mark)
+        if (curPath != NULL )
         {
+            printf("find %d  %d\n",setId, curPath ->endNode);
             curPath ->mark = true;
             //判断冲突，不冲突的话表示找到了一条路径
             if (!CheckConf(curPath, hasVisited))
             {
-                endId = curPath ->endNode;
+                startId  = setId;
+                //把路径的信息复制到第一个结点中
+                CopyToHead(setNode[setId], curPath, hasVisited);
+                //保存
+                nodeStack[stackDepth++] = setId;
+                //设置新的遍历起点
+                setId = curPath ->endNode;
+                //记录改点已经访问过
+                inStack[setId] = true;
+
                 //找到且经过了所有必过点
-                if (endId == destinationID)
+                if (setId == destinationID)
                 {
                     if(cntPass + 1 == stackDepth)
                     {
-                        CopyToHead(setNode[setId], curPath, hasVisited);
-                        //保存
-                        nodeStack[stackDepth++] = setId;
-                        //记录改点已经访问过
-                        inStack[setId] = true;
-                        //设置新的遍历起点
-                        setId = shortPath ->endNode;
                         printf("find \n");
                         break;
                     }
                     //如果到达了终点但是没有经过所有必过点，就退栈
                     else
                     {
-                        goto CLEAN;
+                        inStack[setId] = false;
+                        hasVisited[setId] = false;
+                        setId = startId;
+                        stackDepth --;
                     }
                 }
 
-                //把最短路径的信息复制到第一个结点中
-                CopyToHead(setNode[setId], curPath, hasVisited);
-                //保存
-                nodeStack[stackDepth++] = setId;
-                //记录改点已经访问过
-                inStack[setId] = true;
-                //设置新的遍历起点
-                setId = curPath ->endNode;
             }
         }
         //如果没有适合的路径，则退栈
         else
         {
+            printf("out %d\n",setId);
             //清除mark状态
-CLEAN:      CleanState(setNode[setId], hasVisited);
-            inStack[setId] = false;
+            CleanState(setNode[setId], hasVisited);
+            inStack[setNode[setId] ->endNode] = false;
             setId = nodeStack[stackDepth--];
-            shortPath = NULL;
+            curPath = NULL;
             //如果把第一个结点也出栈，说明没有结果
             if (stackDepth < 0)
             {
@@ -826,7 +828,7 @@ CLEAN:      CleanState(setNode[setId], hasVisited);
     }
     printf("after while\n");
 
-    int pathlenth = GetPath(node, nodeStack, stackDepth, path);
+    pathlenth = GetPath(node, nodeStack, stackDepth, path);
 
     return pathlenth;
 }
@@ -835,10 +837,8 @@ CLEAN:      CleanState(setNode[setId], hasVisited);
 bool CheckConf(SetNode *path, bool hasVisited[MAX_VERTEX_NUM])
 {
     int i ;
-    printf("length is %d\n",path->length);
     for (i = 1; i < path ->length; i++)
     {
-        printf("nodeid is %d\n",path ->nodeList[i]);
         if (true == hasVisited[path ->nodeList[i]] )
         {
             return true;
@@ -868,7 +868,7 @@ void CleanState(SetNode *node, bool hasVisited[MAX_VERTEX_NUM])
     node ->length = 0;
     node ->mark = false;
 
-    for(int i = 0; i < node ->length; i++)
+    for(int i = 1; i < node ->length; i++)
     {
         hasVisited[node ->nodeList[i]] = false;
     }
