@@ -761,15 +761,15 @@ int getDFS2(EdgeNode *node[MAX_VERTEX_NUM], int includingSet[MAX_INCLUDING_SET],
     printf("before while\n");
     while (1)
     {
-        curPath = setNode[setId] ->next;
+        curPath = setNode[setId];
 
-        //找到通往下一个未标记的路径
+        //找到下一个未标记的路径
         while (curPath ->next != NULL && curPath ->mark)
         {
             curPath = curPath ->next;
         }
         //如果有道路
-        if (curPath != NULL && !curPath -> mark)
+        if (curPath != setNode[setId] && !curPath -> mark)
         {
             curPath ->mark = true;
             //判断冲突，不冲突的话表示找到了一条路径
