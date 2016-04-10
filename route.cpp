@@ -749,6 +749,7 @@ int getDFS2(EdgeNode *node[MAX_VERTEX_NUM], int includingSet[MAX_INCLUDING_SET],
     memset(inStack, false, sizeof(inStack));
 
     int setId = 0;//从起点开始
+    int endId = 0;
 
     int stackDepth = 0;
     int nodeStack[MAX_INCLUDING_SET];
@@ -760,47 +761,58 @@ int getDFS2(EdgeNode *node[MAX_VERTEX_NUM], int includingSet[MAX_INCLUDING_SET],
     printf("before while\n");
     while (1)
     {
-        curPath = setNode[setId];
-        shortPath = setNode[setId] ->next;
+        curPath = setNode[setId] ->next;
 
-        //找到通往下一个必过结点中权值最小的路径
-        while (curPath ->next != NULL)
+        //找到通往下一个未标记的路径
+        while (curPath ->next != NULL && curPath ->mark)
         {
             curPath = curPath ->next;
-            //如果没有被访问过且权重较小且终点没有被访问过
-            if (!curPath ->mark && curPath->weight <= shortPath ->weight && !inStack[curPath ->endNode])
-            {
-                shortPath = curPath;
-            }
         }
         //如果有道路
-        if (shortPath != NULL && !shortPath -> mark)
+        if (curPath != NULL && !curPath -> mark)
         {
-            shortPath ->mark = true;
+            curPath ->mark = true;
             //判断冲突，不冲突的话表示找到了一条路径
-            if (!CheckConf(shortPath, hasVisited))
+            if (!CheckConf(curPath, hasVisited))
             {
+                endId = curPath ->endNode;
+                //找到且经过了所有必过点
+                if (endId == destinationID)
+                {
+                    if(cntPass + 1 == stackDepth)
+                    {
+                        CopyToHead(setNode[setId], curPath, hasVisited);
+                        //保存
+                        nodeStack[stackDepth++] = setId;
+                        //记录改点已经访问过
+                        inStack[setId] = true;
+                        //设置新的遍历起点
+                        setId = shortPath ->endNode;
+                        printf("find \n");
+                        break;
+                    }
+                    //如果到达了终点但是没有经过所有必过点，就退栈
+                    else
+                    {
+                        goto CLEAN;
+                    }
+                }
+
                 //把最短路径的信息复制到第一个结点中
-                CopyToHead(setNode[setId], shortPath, hasVisited);
+                CopyToHead(setNode[setId], curPath, hasVisited);
                 //保存
                 nodeStack[stackDepth++] = setId;
                 //记录改点已经访问过
                 inStack[setId] = true;
                 //设置新的遍历起点
-                setId = shortPath ->endNode;
-                //找到且经过了所有必过点
-                if (setId == destinationID && cntPass + 1 == stackDepth)
-                {
-                    printf("find \n");
-                    break;
-                }
+                setId = curPath ->endNode;
             }
         }
         //如果没有适合的路径，则退栈
         else
         {
             //清除mark状态
-            CleanState(setNode[setId], hasVisited);
+CLEAN:      CleanState(setNode[setId], hasVisited);
             inStack[setId] = false;
             setId = nodeStack[stackDepth--];
             shortPath = NULL;
