@@ -636,14 +636,12 @@ void getDFS1(EdgeNode *node[MAX_VERTEX_NUM], int includingSet[MAX_INCLUDING_SET]
     memset(tempRoute, 0, sizeof(tempRoute));
 
     int length = 0;
-    int tempCost = 0;
     int index = 0;
     SetNode * curSNode;
 
     //设置起点的头结点
     setNode[index] = (SetNode *) malloc(sizeof(SetNode));
     setNode[index] ->startNode = includingSet[index];
-    setNode[index] -> weight = 0;
     setNode[index] -> endNode = 0;
     setNode[index] ->length = 0;
     setNode[index] ->mark = false;
@@ -688,7 +686,7 @@ void getDFS1(EdgeNode *node[MAX_VERTEX_NUM], int includingSet[MAX_INCLUDING_SET]
                 {
                     //#!!!! 记录路径写到这里！！
                     memset(tempRoute, 0, sizeof(tempRoute));
-                    tempCost = getCost(node, nodeStack, tempRoute, stackDepth);
+                    //tempCost = getCost(node, nodeStack, tempRoute, stackDepth);
                     memcpy(recordRoute, tempRoute, sizeof(tempRoute));
                     length = stackDepth - 1;
                     stackDepth--;
@@ -705,7 +703,6 @@ void getDFS1(EdgeNode *node[MAX_VERTEX_NUM], int includingSet[MAX_INCLUDING_SET]
                         length --;
                     }
                     tempSNode ->endNode = pNode ->nodeID;
-                    tempSNode ->weight = tempCost;
                     curSNode ->next = tempSNode;
                     curSNode = curSNode ->next;
                 }
@@ -717,7 +714,6 @@ void getDFS1(EdgeNode *node[MAX_VERTEX_NUM], int includingSet[MAX_INCLUDING_SET]
         //设置头结点
         setNode[includingSet[index]] = (SetNode *) malloc(sizeof(SetNode));
         setNode[includingSet[index]]->startNode = includingSet[index - 1];
-        setNode[includingSet[index]] -> weight = 0;
         setNode[includingSet[index]] -> endNode = 0;
         setNode[includingSet[index]] ->length = 0;
         setNode[includingSet[index]] ->mark = false;
@@ -759,7 +755,10 @@ int getDFS2(EdgeNode *node[MAX_VERTEX_NUM], int includingSet[MAX_INCLUDING_SET],
     hasVisited[setId] = true;
     printf("before while\n");
 
-    int pathlenth;
+    int pathlenth = 0;
+    int weight = 9999;
+    int shortPath[MAX_VERTEX_NUM];
+    memset(shortPath, 0, sizeof(shortPath));
     while (1)
     {
         curPath = setNode[setId] ->next;
@@ -794,17 +793,20 @@ int getDFS2(EdgeNode *node[MAX_VERTEX_NUM], int includingSet[MAX_INCLUDING_SET],
                 {
                     if(cntPass + 1 == stackDepth)
                     {
-                        printf("find \n");
-                        break;
+                        printf("find result\n");
+                        int tempWeight =  0 ;
+                        pathlenth = GetPath(node, nodeStack, stackDepth, shortPath, &tempWeight);
+                        if(tempWeight < weight)
+                        {
+                            memcpy(path, shortPath, sizeof(int) * pathlenth);
+                            weight = tempWeight;
+                        }
                     }
-                    //如果到达了终点但是没有经过所有必过点，就退栈
-                    else
-                    {
-                        inStack[setId] = false;
-                        hasVisited[setId] = false;
-                        setId = startId;
-                        stackDepth --;
-                    }
+                    //如果到达了终点，就退栈
+                    inStack[setId] = false;
+                    hasVisited[setId] = false;
+                    setId = startId;
+                    stackDepth --;
                 }
 
             }
@@ -821,14 +823,11 @@ int getDFS2(EdgeNode *node[MAX_VERTEX_NUM], int includingSet[MAX_INCLUDING_SET],
             //如果把第一个结点也出栈，说明没有结果
             if (stackDepth < 0)
             {
-                printf("no result\n");
-                return 0;
+                break;
             }
         }
     }
     printf("after while\n");
-
-    pathlenth = GetPath(node, nodeStack, stackDepth, path);
 
     return pathlenth;
 }
@@ -858,12 +857,10 @@ void CopyToHead(SetNode *head, SetNode *path, bool hasVisited[MAX_VERTEX_NUM])
         head ->nodeList[i] = path ->nodeList[i];
         hasVisited[path ->nodeList[i]] = true;
     }
-    head ->weight = path ->weight;
 }
 
 void CleanState(SetNode *node, bool hasVisited[MAX_VERTEX_NUM])
 {
-    node -> weight = 0;
     node -> endNode = 0;
     node ->length = 0;
     node ->mark = false;
@@ -880,7 +877,7 @@ void CleanState(SetNode *node, bool hasVisited[MAX_VERTEX_NUM])
     }
 }
 //获得路径
-int GetPath(EdgeNode *node[MAX_VERTEX_NUM], int nodeStack[MAX_INCLUDING_SET], int stackDepth, int *path)
+int GetPath(EdgeNode *node[MAX_VERTEX_NUM], int nodeStack[MAX_INCLUDING_SET], int stackDepth, int *path, int *weight)
 {
     int i, j;
     int setId = 0;
@@ -900,9 +897,11 @@ int GetPath(EdgeNode *node[MAX_VERTEX_NUM], int nodeStack[MAX_INCLUDING_SET], in
         startId = setNode[setId] ->nodeList[0];
         for (j = 1; j < length; j++)
         {
+            int sWeight = 0;
             nodeId = setNode[setId] ->nodeList[j];
-            pathId = ConToPath(node, startId, nodeId);
+            pathId = ConToPath(node, startId, nodeId, &sWeight);
             path[count++] = pathId;
+            *weight += sWeight;
             startId = nodeId;
         }
     }
@@ -910,13 +909,14 @@ int GetPath(EdgeNode *node[MAX_VERTEX_NUM], int nodeStack[MAX_INCLUDING_SET], in
     return count;
 }
 
-int ConToPath(EdgeNode *node[MAX_VERTEX_NUM], int startId, int nodeId)
+int ConToPath(EdgeNode *node[MAX_VERTEX_NUM], int startId, int nodeId, int *weight)
 {
     EdgeNode *cNode = node[startId];
     while (cNode != NULL)
     {
         if (cNode ->nodeID == nodeId)
         {
+            *weight = cNode ->weight;
             return cNode ->linkID;
         }
         cNode = cNode ->next;

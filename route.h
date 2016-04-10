@@ -30,7 +30,6 @@ typedef struct EdgeNode
 typedef struct SetNode
 {
     int startNode;
-    int weight;
     int endNode;
     int length;
     bool mark;
@@ -77,8 +76,8 @@ int getDFS2(EdgeNode *node[MAX_VERTEX_NUM], int includingSet[MAX_INCLUDING_SET],
 bool CheckConf(SetNode *path, bool hasVisited[MAX_VERTEX_NUM]);
 void CopyToHead(SetNode *head, SetNode *path, bool hasVisited[MAX_VERTEX_NUM]);
 void CleanState(SetNode *node, bool hasVisited[MAX_VERTEX_NUM]);
-int GetPath(EdgeNode *node[MAX_VERTEX_NUM], int nodeStack[MAX_INCLUDING_SET], int stackDepth, int *path);
-int ConToPath(EdgeNode *node[MAX_VERTEX_NUM], int startId, int nodeId);
+int GetPath(EdgeNode *node[MAX_VERTEX_NUM], int nodeStack[MAX_INCLUDING_SET], int stackDepth, int *path, int *weight);
+int ConToPath(EdgeNode *node[MAX_VERTEX_NUM], int startId, int nodeId, int *weight);
 #endif // DFSDEBUG
 
 #ifdef PRINTDEBUG
