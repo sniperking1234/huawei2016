@@ -684,6 +684,7 @@ void getDFS1(EdgeNode *node[MAX_VERTEX_NUM], int includingSet[MAX_INCLUDING_SET]
                 //如果经过了必过点，或者终点，且深度小于MAX_SEARCH_DEPTH
                 if ((checkInDemand(includingSet, pNode->nodeID) || pNode->nodeID == destinationID ) && stackDepth <= MAX_SEARCH_DEPTH ) // 遍历到另一个必过点,存储路径,回退寻找下一个必过点.
                 {
+                    printf("record path %d  %d\n",tempID, pNode->nodeID);
                     //#!!!! 记录路径写到这里！！
                     memset(tempRoute, 0, sizeof(tempRoute));
                     //tempCost = getCost(node, nodeStack, tempRoute, stackDepth);
@@ -725,6 +726,7 @@ void getDFS1(EdgeNode *node[MAX_VERTEX_NUM], int includingSet[MAX_INCLUDING_SET]
         nodeStack[stackDepth] = includingSet[index]; // 更新下次进行遍历时的起点.
         pNode = node[includingSet[index]];
         inStack[includingSet[index]] = true;
+        tempID = includingSet[index];
         stackDepth ++;
         memset(hasVisited, 0, sizeof(hasVisited));
         memset(recordRoute, 0, sizeof(recordRoute));
@@ -766,7 +768,7 @@ int getDFS2(EdgeNode *node[MAX_VERTEX_NUM], int includingSet[MAX_INCLUDING_SET],
         //找到下一个未标记的路径
         while (curPath != NULL)
         {
-           if(curPath ->mark == false)
+           if(!curPath ->mark)
                 break;
             curPath = curPath ->next;
         }
@@ -818,7 +820,8 @@ int getDFS2(EdgeNode *node[MAX_VERTEX_NUM], int includingSet[MAX_INCLUDING_SET],
             //清除mark状态
             CleanState(setNode[setId], hasVisited);
             inStack[setNode[setId] ->endNode] = false;
-            setId = nodeStack[stackDepth--];
+            stackDepth --;
+            setId = nodeStack[stackDepth];
             curPath = NULL;
             //如果把第一个结点也出栈，说明没有结果
             if (stackDepth < 0)
@@ -861,11 +864,8 @@ void CopyToHead(SetNode *head, SetNode *path, bool hasVisited[MAX_VERTEX_NUM])
 
 void CleanState(SetNode *node, bool hasVisited[MAX_VERTEX_NUM])
 {
-    node -> endNode = 0;
-    node ->length = 0;
-    node ->mark = false;
-
-    for(int i = 1; i < node ->length; i++)
+    SetNode *starNode = node;
+    for(int i = 0; i < node ->length; i++)
     {
         hasVisited[node ->nodeList[i]] = false;
     }
@@ -875,6 +875,9 @@ void CleanState(SetNode *node, bool hasVisited[MAX_VERTEX_NUM])
         node = node ->next;
         node ->mark = false;
     }
+    starNode -> endNode = 0;
+    starNode ->length = 0;
+    starNode ->mark = false;
 }
 //获得路径
 int GetPath(EdgeNode *node[MAX_VERTEX_NUM], int nodeStack[MAX_INCLUDING_SET], int stackDepth, int *path, int *weight)
